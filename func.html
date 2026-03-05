@@ -39,14 +39,14 @@
 
       <div class="docs">
         <h2>Let bindings</h2>
-        <p>Everything in F is an expression that produces a value. <code>let</code> binds a name to a value for the duration of the body after <code>in</code>. The binding is scoped--once the body finishes, the name goes away. This means you can nest <code>let</code> expressions freely without worrying about names leaking out.</p>
+        <p>Everything in F is an expression that produces a value. <code>let</code> binds a name to a value for the duration of the body after <code>in</code>. The binding is scoped-once the body finishes, the name goes away. This means you can nest <code>let</code> expressions freely without worrying about names leaking out.</p>
 <pre><code><span class="let">let</span> x = 5 <span class="in">in</span> x + 1</code></pre>
         <p>When you need recursion, use <code>let rec</code>. This lets the bound name refer to itself in its own definition. Without <code>rec</code>, the name isn't in scope yet when the right-hand side is being evaluated, so a plain <code>let</code> can't define recursive functions.</p>
 <pre><code><span class="let">let</span> <span class="rec">rec</span> fac = <span class="fun">fun</span> n -> <span class="if">if</span> n = 0 <span class="then">then</span> 1 <span class="else">else</span> n * fac (n - 1) <span class="in">in</span>
   fac 5</code></pre>
 
         <h2>Functions</h2>
-        <p>Functions are written with <code>fun</code> and an arrow. When you write multiple parameters, each one creates a nested function--<code>fun x y -> x + y</code> is really <code>fun x -> fun y -> x + y</code>. This currying means you can partially apply: pass one argument and get back a function that's waiting for the rest.</p>
+        <p>Functions are written with <code>fun</code> and an arrow. When you write multiple parameters, each one creates a nested function-<code>fun x y -> x + y</code> is really <code>fun x -> fun y -> x + y</code>. This currying means you can partially apply: pass one argument and get back a function that's waiting for the rest.</p>
         <p>Application is by juxtaposition. You write <code>f 5</code>, not <code>f(5)</code>. This keeps things compact, especially when chaining: <code>f 5 + 17</code> applies <code>f</code> to <code>5</code>, then adds <code>17</code> to the result.</p>
         <p>Functions close over their environment. When you define a function inside a <code>let</code>, it captures the bindings that were in scope at the time. The resulting closure carries those bindings with it, so it works correctly even when called from a different scope.</p>
 
@@ -65,7 +65,7 @@
         <p>This iterates over the list, binds each element to <code>x</code>, keeps only those where <code>x > 2</code>, and collects <code>x * x</code> for each one. The result is <code>[9; 16; 25]</code>.</p>
 
         <h2>Delay and force</h2>
-        <p><code>delay</code> wraps an expression without evaluating it, creating a thunk. The expression just sits there until someone calls <code>force</code> on it, at which point it evaluates and caches the result. Calling <code>force</code> again returns the cached value without re-evaluating. This gives you lazy evaluation in a language that's otherwise eager--useful for things like infinite data structures or expensive computations you might not need.</p>
+        <p><code>delay</code> wraps an expression without evaluating it, creating a thunk. The expression just sits there until someone calls <code>force</code> on it, at which point it evaluates and caches the result. Calling <code>force</code> again returns the cached value without re-evaluating. This gives you lazy evaluation in a language that's otherwise eager-useful for things like infinite data structures or expensive computations you might not need.</p>
       </div>
   </main>
 </body>

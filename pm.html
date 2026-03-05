@@ -41,7 +41,7 @@
 
       <div class="docs">
         <h2>How it works</h2>
-        <p>The core idea is simple: <code>match</code> takes a value followed by alternating pattern/handler pairs. It tries each pattern top to bottom, and when one fits, it calls the corresponding handler with whatever the pattern captured. This all happens in plain JavaScript--no syntax extensions, no build step. The DSL is just functions.</p>
+        <p>The core idea is simple: <code>match</code> takes a value followed by alternating pattern/handler pairs. It tries each pattern top to bottom, and when one fits, it calls the corresponding handler with whatever the pattern captured. This all happens in plain JavaScript-no syntax extensions, no build step. The DSL is just functions.</p>
 <pre><code><span class="fn">match</span>(<span class="num">42</span>,
   <span class="num">0</span>,    () => <span class="str">"zero"</span>,
   _,    x  => <span class="str">"got "</span> + x
@@ -66,7 +66,7 @@
   <span class="fn">inst</span>(Point, <span class="num">0</span>, _),  y => <span class="str">"on y-axis at "</span> + y,
   <span class="fn">inst</span>(Point, _, _),   (x, y) => <span class="str">"("</span> + x + <span class="str">", "</span> + y + <span class="str">")"</span>
 )</code></pre>
-        <p>The first arm checks if it's a <code>Point</code> whose x-coordinate is <code>0</code>. The second matches any <code>Point</code> and binds both coordinates. Because <code>deconstruct</code> is just a method you write, you control exactly what gets exposed to the pattern matcher. The interpreter in the functional language playground actually uses this same mechanism internally--it pattern-matches on AST nodes using <code>inst</code> and <code>deconstruct</code>.</p>
+        <p>The first arm checks if it's a <code>Point</code> whose x-coordinate is <code>0</code>. The second matches any <code>Point</code> and binds both coordinates. Because <code>deconstruct</code> is just a method you write, you control exactly what gets exposed to the pattern matcher. The interpreter in the functional language playground actually uses this same mechanism internally-it pattern-matches on AST nodes using <code>inst</code> and <code>deconstruct</code>.</p>
 
         <h2>Guards and ranges</h2>
         <p>A function used as a pattern acts as a guard: it receives the value and returns true or false. You can also combine a structural pattern with a boolean check using <code>when</code>:</p>
@@ -74,7 +74,7 @@
   <span class="fn">when</span>(_, x => x > <span class="num">10</span>),  x => <span class="str">"big"</span>,
   _,                       x => <span class="str">"small"</span>
 )</code></pre>
-        <p><code>range(min, max)</code> matches any number in the inclusive range. These are convenience tools--you could do the same thing with a function pattern, but they read more clearly.</p>
+        <p><code>range(min, max)</code> matches any number in the inclusive range. These are convenience tools-you could do the same thing with a function pattern, but they read more clearly.</p>
       </div>
   </main>
 </body>
