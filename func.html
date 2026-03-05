@@ -1,0 +1,72 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Functional Language</title>
+  <link rel="stylesheet" href="lib/codemirror.css">
+  <link rel="stylesheet" href="style.css">
+
+  <script src="lib/helpers.js"></script>
+  <script src="lib/lang.js"></script>
+  <script src="lib/tests.js"></script>
+  <script src="lib/IndentingOutputStream.js"></script>
+  <script src="lib/playground.js"></script>
+  <script src="lib/beautify.js"></script>
+
+  <script src="lib/jquery-2.1.1.min.js"></script>
+  <script src="lib/codemirror.js"></script>
+  <script src="lib/ohm.min.js"></script>
+
+  <script src="func/F.js"></script>
+  <script src="func/interp.js"></script>
+  <script src="func/prettyPrint.js"></script>
+</head>
+<body>
+  <main class="content">
+    <p class="back-link"><a href="index.html">Home</a></p>
+    <h1>Functional Language (F)</h1>
+    <p class="subtitle">F is an ML-like language with pattern matching, data constructors, and list comprehensions.</p>
+      <script>
+        F.evalAST = interp;
+      </script>
+      <script>
+        insertPlayground(
+          F,
+          'let f = fun x -> x * x in\n  f 5 + 17'
+        );
+      </script>
+
+      <div class="docs">
+        <h2>Let bindings</h2>
+        <p>Everything in F is an expression that produces a value. <code>let</code> binds a name to a value for the duration of the body after <code>in</code>. The binding is scoped--once the body finishes, the name goes away. This means you can nest <code>let</code> expressions freely without worrying about names leaking out.</p>
+<pre><code><span class="let">let</span> x = 5 <span class="in">in</span> x + 1</code></pre>
+        <p>When you need recursion, use <code>let rec</code>. This lets the bound name refer to itself in its own definition. Without <code>rec</code>, the name isn't in scope yet when the right-hand side is being evaluated, so a plain <code>let</code> can't define recursive functions.</p>
+<pre><code><span class="let">let</span> <span class="rec">rec</span> fac = <span class="fun">fun</span> n -> <span class="if">if</span> n = 0 <span class="then">then</span> 1 <span class="else">else</span> n * fac (n - 1) <span class="in">in</span>
+  fac 5</code></pre>
+
+        <h2>Functions</h2>
+        <p>Functions are written with <code>fun</code> and an arrow. When you write multiple parameters, each one creates a nested function--<code>fun x y -> x + y</code> is really <code>fun x -> fun y -> x + y</code>. This currying means you can partially apply: pass one argument and get back a function that's waiting for the rest.</p>
+        <p>Application is by juxtaposition. You write <code>f 5</code>, not <code>f(5)</code>. This keeps things compact, especially when chaining: <code>f 5 + 17</code> applies <code>f</code> to <code>5</code>, then adds <code>17</code> to the result.</p>
+        <p>Functions close over their environment. When you define a function inside a <code>let</code>, it captures the bindings that were in scope at the time. The resulting closure carries those bindings with it, so it works correctly even when called from a different scope.</p>
+
+        <h2>Data constructors and pattern matching</h2>
+        <p>Constructors start with an uppercase letter and wrap values into tagged data. <code>Some 5</code> creates a datum tagged <code>Some</code> containing <code>5</code>. <code>None</code> is a constructor with no payload. You can nest them: <code>Cons (1, Cons (2, Nil))</code> builds a linked list. The bracket syntax <code>[1; 2; 3]</code> is sugar for exactly that chain of <code>Cons</code> and <code>Nil</code>.</p>
+        <p><code>match</code> lets you branch on the shape of a value. Each arm is a pattern followed by an arrow and a body. Patterns can be literals, wildcards (<code>_</code>), variables (which bind the matched value), constructors, or tuples. The interpreter tries each arm top to bottom and takes the first one that fits.</p>
+<pre><code><span class="match">match</span> Cons (1, Nil) <span class="with">with</span>
+| Cons (x, _) -> x
+| Nil -> 0</code></pre>
+        <p>Patterns also work in <code>let</code> bindings and function parameters. <code>let (a, b) = (1, 2) in a + b</code> destructures a tuple directly. <code>fun (x, y) -> x + y</code> takes a tuple argument and pulls it apart.</p>
+
+        <h2>Tuples and lists</h2>
+        <p>Comma-separated expressions in parentheses make a tuple: <code>(1, true, 3)</code>. Tuples can hold any mix of types and can be destructured anywhere patterns are allowed.</p>
+        <p>Lists use semicolons in brackets: <code>[1; 2; 3]</code>. You can also build them from comprehensions. A list comprehension maps an expression over a list, with an optional filter:</p>
+<pre><code>[x * x | x &lt;- [1; 2; 3; 4; 5], x > 2]</code></pre>
+        <p>This iterates over the list, binds each element to <code>x</code>, keeps only those where <code>x > 2</code>, and collects <code>x * x</code> for each one. The result is <code>[9; 16; 25]</code>.</p>
+
+        <h2>Delay and force</h2>
+        <p><code>delay</code> wraps an expression without evaluating it, creating a thunk. The expression just sits there until someone calls <code>force</code> on it, at which point it evaluates and caches the result. Calling <code>force</code> again returns the cached value without re-evaluating. This gives you lazy evaluation in a language that's otherwise eager--useful for things like infinite data structures or expensive computations you might not need.</p>
+      </div>
+  </main>
+</body>
+</html>

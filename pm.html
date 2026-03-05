@@ -1,0 +1,81 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Pattern Matching</title>
+  <link rel="stylesheet" href="lib/codemirror.css">
+  <link rel="stylesheet" href="style.css">
+
+  <script src="lib/helpers.js"></script>
+  <script src="lib/lang.js"></script>
+  <script src="lib/tests.js"></script>
+  <script src="lib/playground.js"></script>
+
+  <script src="lib/jquery-2.1.1.min.js"></script>
+  <script src="lib/codemirror.js"></script>
+
+  <script src="pm/match.js"></script>
+</head>
+<body>
+  <main class="content">
+    <p class="back-link"><a href="index.html">Home</a></p>
+    <h1>Pattern Matching (JS)</h1>
+    <p class="subtitle">A pattern matching DSL embedded in plain JavaScript.</p>
+      <script>
+        insertPlayground(
+          JS,
+          'class Point {\n' +
+          '  constructor(x, y) { this.x = x; this.y = y }\n' +
+          '  deconstruct() { return [this.x, this.y] }\n' +
+          '}\n' +
+          '\n' +
+          'match(new Point(3, 4),\n' +
+          '  inst(Point, 0, _),\n' +
+          '    y => "on y-axis at " + y,\n' +
+          '  inst(Point, _, _),\n' +
+          '    (x, y) => "(" + x + ", " + y + ")"\n' +
+          ')'
+        );
+      </script>
+
+      <div class="docs">
+        <h2>How it works</h2>
+        <p>The core idea is simple: <code>match</code> takes a value followed by alternating pattern/handler pairs. It tries each pattern top to bottom, and when one fits, it calls the corresponding handler with whatever the pattern captured. This all happens in plain JavaScript--no syntax extensions, no build step. The DSL is just functions.</p>
+<pre><code><span class="fn">match</span>(<span class="num">42</span>,
+  <span class="num">0</span>,    () => <span class="str">"zero"</span>,
+  _,    x  => <span class="str">"got "</span> + x
+)</code></pre>
+        <p>Literals match by equality. The wildcard <code>_</code> matches anything and passes the value to the handler as a parameter. If no pattern matches, it throws a <code>MatchFailure</code>.</p>
+
+        <h2>Arrays</h2>
+        <p>Array patterns match element by element. If you pass an array as a pattern, the value must also be an array, and each element is matched against the corresponding pattern in the array. This gives you destructuring for free.</p>
+<pre><code><span class="fn">match</span>([<span class="num">1</span>, <span class="num">2</span>, <span class="num">3</span>, <span class="num">4</span>],
+  [<span class="num">1</span>, <span class="fn">many</span>(_), <span class="num">4</span>],  middle => middle
+)</code></pre>
+        <p><code>many(pattern)</code> matches zero or more consecutive elements that fit the inner pattern, collecting them into an array. <code>rest()</code> captures everything remaining in the list from that point on. Between the two, you can express most list-processing patterns without writing recursive code.</p>
+
+        <h2>Class destructuring</h2>
+        <p>This is where it gets interesting. If you define a <code>deconstruct()</code> method on a class that returns an array of its components, you can use <code>inst(ClassName, ...patterns)</code> to match and pull apart instances. Each pattern position corresponds to one element of the returned array.</p>
+<pre><code><span class="kw">class</span> Point {
+  <span class="fn">constructor</span>(x, y) { <span class="kw">this</span>.x = x; <span class="kw">this</span>.y = y }
+  <span class="fn">deconstruct</span>() { <span class="kw">return</span> [<span class="kw">this</span>.x, <span class="kw">this</span>.y] }
+}
+
+<span class="fn">match</span>(<span class="kw">new</span> Point(<span class="num">3</span>, <span class="num">4</span>),
+  <span class="fn">inst</span>(Point, <span class="num">0</span>, _),  y => <span class="str">"on y-axis at "</span> + y,
+  <span class="fn">inst</span>(Point, _, _),   (x, y) => <span class="str">"("</span> + x + <span class="str">", "</span> + y + <span class="str">")"</span>
+)</code></pre>
+        <p>The first arm checks if it's a <code>Point</code> whose x-coordinate is <code>0</code>. The second matches any <code>Point</code> and binds both coordinates. Because <code>deconstruct</code> is just a method you write, you control exactly what gets exposed to the pattern matcher. The interpreter in the functional language playground actually uses this same mechanism internally--it pattern-matches on AST nodes using <code>inst</code> and <code>deconstruct</code>.</p>
+
+        <h2>Guards and ranges</h2>
+        <p>A function used as a pattern acts as a guard: it receives the value and returns true or false. You can also combine a structural pattern with a boolean check using <code>when</code>:</p>
+<pre><code><span class="fn">match</span>(<span class="num">7</span>,
+  <span class="fn">when</span>(_, x => x > <span class="num">10</span>),  x => <span class="str">"big"</span>,
+  _,                       x => <span class="str">"small"</span>
+)</code></pre>
+        <p><code>range(min, max)</code> matches any number in the inclusive range. These are convenience tools--you could do the same thing with a function pattern, but they read more clearly.</p>
+      </div>
+  </main>
+</body>
+</html>

@@ -1,0 +1,72 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Logic Language</title>
+  <link rel="stylesheet" href="lib/codemirror.css">
+  <link rel="stylesheet" href="style.css">
+
+  <script src="lib/helpers.js"></script>
+  <script src="lib/lang.js"></script>
+  <script src="lib/tests.js"></script>
+  <script src="lib/IndentingOutputStream.js"></script>
+  <script src="lib/playground.js"></script>
+  <script src="lib/beautify.js"></script>
+  <script src="pm/match.js"></script>
+
+  <script src="lib/jquery-2.1.1.min.js"></script>
+  <script src="lib/codemirror.js"></script>
+  <script src="lib/ohm.min.js"></script>
+
+  <script src="log/L.js"></script>
+  <script src="log/interp.js"></script>
+  <script src="log/plumbing.js"></script>
+  <script src="log/prettyPrint.js"></script>
+</head>
+<body>
+  <main class="content">
+    <p class="back-link"><a href="index.html">Home</a></p>
+    <h1>Logic Language (L)</h1>
+    <p class="subtitle">L is a Prolog-like language with unification and backtracking search.</p>
+      <script>
+        insertPlayground(
+          L,
+          'person(alice).\nperson(bob).\nperson(X)?'
+        );
+      </script>
+
+      <div class="docs">
+        <h2>Facts and rules</h2>
+        <p>A program in L is a collection of facts and rules, followed by a query. You're not writing a sequence of instructions--you're stating what's true, and then asking a question about it.</p>
+        <p>A fact is a clause ending in a period. It says something is unconditionally true. <code><span class="symbol">parent</span>(<span class="symbol">tom</span>, <span class="symbol">bob</span>).</code> means Tom is Bob's parent, full stop. A rule adds conditions: the head is true if all the goals in the body are true. The body comes after <code>:-</code> and goals are separated by commas.</p>
+<pre><code><span class="symbol">parent</span>(<span class="symbol">tom</span>, <span class="symbol">bob</span>).
+<span class="symbol">parent</span>(<span class="symbol">bob</span>, <span class="symbol">ann</span>).
+<span class="symbol">grandparent</span>(<span class="variable">X</span>, <span class="variable">Z</span>) :- <span class="symbol">parent</span>(<span class="variable">X</span>, <span class="variable">Y</span>), <span class="symbol">parent</span>(<span class="variable">Y</span>, <span class="variable">Z</span>).</code></pre>
+
+        <h2>Variables and queries</h2>
+        <p>Variables start with an uppercase letter. Symbols--the concrete atoms of your program, like <code>tom</code> or <code>parent</code>--start with lowercase. This distinction matters: variables are placeholders that the interpreter fills in, while symbols are fixed values.</p>
+        <p>A query ends with <code>?</code> instead of a period. When you ask <code><span class="symbol">grandparent</span>(<span class="symbol">tom</span>, <span class="variable">X</span>)?</code>, the interpreter searches for all values of <code><span class="variable">X</span></code> that make the query true. It does this by unification--matching the query against rules, binding variables to terms, and backtracking when a path doesn't work out. If there are multiple solutions, you get all of them.</p>
+
+        <h2>Unification</h2>
+        <p>Unification is the core mechanism. When the interpreter tries to match a goal against a rule's head, it finds a substitution--a mapping from variables to terms--that makes them identical. If <code><span class="symbol">parent</span>(<span class="variable">X</span>, <span class="symbol">ann</span>)</code> is matched against <code><span class="symbol">parent</span>(<span class="symbol">bob</span>, <span class="symbol">ann</span>)</code>, the substitution is <code>{<span class="variable">X</span> = <span class="symbol">bob</span>}</code>. If two terms can't be made to match--different symbols, different arities--unification fails and the interpreter backtracks to try another rule.</p>
+
+        <h2>Lists</h2>
+        <p>Lists are written with brackets: <code>[1, 2, 3]</code>. Under the hood, they desugar to nested cons/nil structures, but you don't need to think about that. The <code>|</code> separator splits a list into its head and tail, which is how you recurse over lists in patterns:</p>
+<pre><code><span class="symbol">member</span>(<span class="variable">X</span>, [<span class="variable">X</span> | _]).
+<span class="symbol">member</span>(<span class="variable">X</span>, [_ | <span class="variable">T</span>]) :- <span class="symbol">member</span>(<span class="variable">X</span>, <span class="variable">T</span>).
+<span class="symbol">member</span>(2, [1, 2, 3])?</code></pre>
+        <p>The first rule says: <code><span class="variable">X</span></code> is a member of a list if it's the head. The second says: <code><span class="variable">X</span></code> is a member if it's a member of the tail. The underscore <code>_</code> is a wildcard that matches anything without binding it.</p>
+
+        <h2>Arithmetic</h2>
+        <p>L doesn't evaluate arithmetic automatically--<code><span class="symbol">plus</span>(2, 3)</code> is just a term, not <code>5</code>. To actually compute, use <code>is</code>. It evaluates the right-hand side as an arithmetic expression and unifies the result with the left-hand side. The operations are <code>plus</code>, <code>minus</code>, <code>times</code>, <code>div</code>, and <code>mod</code>.</p>
+<pre><code><span class="symbol">double</span>(<span class="variable">X</span>, <span class="variable">Y</span>) :- <span class="variable">Y</span> <span class="symbol">is</span> <span class="symbol">times</span>(<span class="variable">X</span>, 2).
+<span class="symbol">double</span>(5, <span class="variable">Y</span>)?</code></pre>
+
+        <h2>Cut, assert, retract</h2>
+        <p><code>cut</code> prunes the search tree. When the interpreter reaches a <code>cut</code>, it commits to the current choice and won't backtrack past it. This is useful for writing "if-then-else" style logic or preventing redundant search.</p>
+        <p><code>assert</code> and <code>retract</code> modify the program at runtime. <code><span class="symbol">assert</span>(<span class="symbol">likes</span>(<span class="symbol">bob</span>, <span class="symbol">pizza</span>))</code> adds a new fact. <code><span class="symbol">retract</span>(<span class="symbol">likes</span>(<span class="symbol">bob</span>, <span class="symbol">pizza</span>))</code> removes the first matching one. This lets programs build up and modify their own knowledge base during execution.</p>
+      </div>
+  </main>
+</body>
+</html>

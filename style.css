@@ -1,0 +1,275 @@
+:root {
+  --color-bg: #1a1a1a;
+  --color-surface: rgba(255, 255, 255, 0.04);
+  --color-text: rgb(220, 220, 220);
+  --color-text-muted: rgb(160, 160, 160);
+  --color-code-bg: rgba(255, 255, 255, 0.065);
+  --color-border: rgba(255, 255, 255, 0.1);
+
+  --font-sans: 'SF Pro Text', -apple-system, BlinkMacSystemFont, sans-serif;
+  --font-mono: 'SF Mono', ui-monospace, SFMono-Regular, monospace;
+  --g: 1.5rem;
+}
+
+*, *::before, *::after { box-sizing: border-box; }
+
+body {
+  margin: 0;
+  font-family: var(--font-sans);
+  font-size: 1rem;
+  font-weight: 475;
+  color: var(--color-text);
+  background: var(--color-bg);
+  line-height: var(--g);
+  -webkit-font-smoothing: antialiased;
+}
+
+a {
+  color: inherit;
+  text-decoration: none;
+  opacity: 0.75;
+  transition: opacity 0.15s;
+}
+
+a::after {
+  content: '\2197';
+  font-size: 0.7em;
+  margin-left: 0.15em;
+  display: inline-block;
+}
+
+a:hover {
+  opacity: 0.45;
+}
+
+/* --- Content area --- */
+
+.content {
+  padding: calc(2 * var(--g)) calc(3 * var(--g));
+  max-width: 64rem;
+  margin: 0 auto;
+}
+
+.content h1 {
+  font-size: 1.75rem;
+  font-weight: 700;
+  line-height: calc(2 * var(--g));
+  margin-bottom: var(--g);
+}
+
+.content .subtitle {
+  margin: var(--g) 0;
+}
+
+.content p {
+  margin: var(--g) 0;
+}
+
+/* --- Landing page link list --- */
+
+.link-list {
+  list-style: none;
+  padding: 0;
+  margin: 0;
+  line-height: 1.65;
+}
+
+/* --- Docs content --- */
+
+.docs {
+  margin-top: calc(3 * var(--g));
+}
+
+.docs h2 {
+  font-size: 1.375rem;
+  font-weight: 600;
+  line-height: calc(2 * var(--g));
+  margin-top: calc(3 * var(--g));
+  margin-bottom: 0;
+}
+
+.docs h3 {
+  font-size: 1rem;
+  font-weight: 600;
+  line-height: var(--g);
+  margin-top: calc(2 * var(--g));
+  margin-bottom: 0;
+}
+
+.docs h2 + p, .docs h3 + p {
+  margin-top: 0;
+}
+
+.docs p {
+  margin: var(--g) 0;
+}
+
+.docs code {
+  font-family: var(--font-mono);
+  font-size: 0.85em;
+  font-weight: 500;
+  background: var(--color-code-bg);
+  padding: 0.15em 0.35em;
+  border-radius: 3px;
+}
+
+.docs pre {
+  background: var(--color-code-bg);
+  border-radius: 4px;
+  padding: calc(0.5 * var(--g));
+  overflow-x: auto;
+  line-height: var(--g);
+  margin: calc(-0.5 * var(--g)) 0;
+  font-size: 0.85rem;
+  font-weight: 500;
+  font-family: var(--font-mono);
+}
+
+.docs pre code {
+  background: none;
+  padding: 0;
+  font-size: inherit;
+  font-weight: inherit;
+}
+
+/* --- Callout --- */
+
+.callout {
+  background: var(--color-surface);
+  border-radius: 4px;
+  padding: calc(0.5 * var(--g)) var(--g);
+  margin: var(--g) 0;
+}
+
+.callout p {
+  margin: calc(0.5 * var(--g)) 0;
+}
+
+/* --- Back link --- */
+
+.back-link {
+  margin-bottom: 1.5rem;
+}
+
+.back-link a::after {
+  content: none;
+}
+
+.back-link a {
+  opacity: 0.5;
+}
+
+.back-link a:hover {
+  opacity: 0.3;
+}
+
+/* --- CodeMirror dark overrides --- */
+
+.CodeMirror {
+  background: var(--color-surface) !important;
+  color: var(--color-text) !important;
+  font-family: var(--font-mono) !important;
+  font-size: 13px !important;
+  font-weight: 400 !important;
+  line-height: 1.6 !important;
+  border-radius: 6px;
+  border: 1px solid var(--color-border) !important;
+}
+
+.CodeMirror-gutters {
+  background: rgba(255, 255, 255, 0.03) !important;
+  border-right: 1px solid var(--color-border) !important;
+}
+
+.CodeMirror-linenumber {
+  color: rgba(255, 255, 255, 0.25) !important;
+}
+
+.CodeMirror-cursor {
+  border-left-color: var(--color-text) !important;
+}
+
+.CodeMirror-selected {
+  background: rgba(124, 162, 223, 0.2) !important;
+}
+
+.CodeMirror-focused .CodeMirror-selected {
+  background: rgba(124, 162, 223, 0.3) !important;
+}
+
+.CodeMirror-activeline-background {
+  background: rgba(255, 255, 255, 0.04) !important;
+}
+
+/* --- Playground table dark styling --- */
+
+table.playground {
+  border-collapse: collapse;
+  width: 100%;
+  margin-top: 1rem;
+  table-layout: fixed;
+}
+
+table.playground td {
+  padding: 4px 0;
+  vertical-align: top;
+}
+
+table.playground tr.collapsed td {
+  opacity: 0.4;
+}
+
+table.playground tr.collapsed .CodeMirror {
+  display: none;
+}
+
+/* parse error */
+parseError {
+  display: block;
+  font-family: var(--font-mono);
+  font-size: 12px;
+  color: #f48771;
+  white-space: pre;
+  padding: 2px 4px;
+}
+
+/* --- Syntax highlighting: Func --- */
+
+.if, .then, .else, .fun, .let, .rec, .in, .match, .with, .delay, .force {
+  color: #c586c0;
+}
+
+.ident {
+  color: #dcdcaa;
+}
+
+/* --- Syntax highlighting: Log --- */
+
+.symbol {
+  color: #c586c0;
+}
+
+.variable {
+  color: #9cdcfe;
+}
+
+/* --- Syntax highlighting: JS/PM --- */
+
+.kw { color: #c586c0; }
+.fn { color: #dcdcaa; }
+.str { color: #ce9178; }
+.num { color: #b5cea8; }
+
+/* --- Syntax highlighting: shared --- */
+
+.comment {
+  color: #6a9955;
+}
+
+/* --- Responsive --- */
+
+@media (max-width: 768px) {
+  .content {
+    padding: 2rem 1.5rem;
+  }
+}
